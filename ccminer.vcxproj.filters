@@ -121,6 +121,9 @@
     <Filter Include="Source Files\CUDA\x12">
       <UniqueIdentifier>{xde48d89-fx12-1323-129a-b592fe2b2de3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\CUDA\hns">
+      <UniqueIdentifier>{fb108da8-b8ec-478c-bb77-00f5f6f5177f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compat\jansson\dump.c">
@@ -356,6 +359,18 @@
     </ClCompile>
     <ClCompile Include="equi\blake2\blake2bx.cpp">
       <Filter>Source Files\equi</Filter>
+    </ClCompile>
+    <ClCompile Include="hns\header.c">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClCompile>
+    <ClCompile Include="hns\sha3.c">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClCompile>
+    <ClCompile Include="hns\utils.c">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClCompile>
+    <ClCompile Include="hns\hnsblake2b.c">
+      <Filter>Source Files\CUDA\hns</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -610,6 +625,30 @@
     </ClInclude>
     <ClInclude Include="x16\cuda_x16.h">
       <Filter>Header Files\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\common.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\error.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\header.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\sha3.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\utils.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\bio.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\hnsblake2b.h">
+      <Filter>Source Files\CUDA\hns</Filter>
+    </ClInclude>
+    <ClInclude Include="hns\hnsblake2b-impl.h">
+      <Filter>Source Files\CUDA\hns</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -961,9 +1000,6 @@
     <CudaCompile Include="lyra2\lyra2Z.cu">
       <Filter>Source Files\CUDA\lyra2</Filter>
     </CudaCompile>
-    <CudaCompile Include="blake2b.cu">
-      <Filter>Source Files\CUDA\</Filter>
-    </CudaCompile>
     <CudaCompile Include="Algo256\blake2s.cu">
       <Filter>Source Files\CUDA\Algo256</Filter>
     </CudaCompile>
@@ -1044,6 +1080,10 @@
     </CudaCompile>
     <CudaCompile Include="x16\x16s.cu">
       <Filter>Source Files\CUDA\x16</Filter>
+    </CudaCompile>
+    <CudaCompile Include="blake2b.cu" />
+    <CudaCompile Include="hns\hnscuda.cu">
+      <Filter>Source Files\CUDA\hns</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>

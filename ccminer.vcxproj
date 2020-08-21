@@ -242,6 +242,10 @@
     <ClCompile Include="equi\equi-stratum.cpp" />
     <ClCompile Include="equi\equi.cpp" />
     <ClCompile Include="equi\equihash.cpp" />
+    <ClCompile Include="hns\hnsblake2b.c" />
+    <ClCompile Include="hns\header.c" />
+    <ClCompile Include="hns\sha3.c" />
+    <ClCompile Include="hns\utils.c" />
     <ClCompile Include="nvapi.cpp" />
     <ClCompile Include="nvsettings.cpp" />
     <ClCompile Include="pools.cpp" />
@@ -264,6 +268,14 @@
     <ClCompile Include="lyra2\Lyra2Z.c" />
     <ClInclude Include="equi\eqcuda.hpp" />
     <ClInclude Include="equi\equihash.h" />
+    <ClInclude Include="hns\bio.h" />
+    <ClInclude Include="hns\hnsblake2b-impl.h" />
+    <ClInclude Include="hns\hnsblake2b.h" />
+    <ClInclude Include="hns\common.h" />
+    <ClInclude Include="hns\error.h" />
+    <ClInclude Include="hns\header.h" />
+    <ClInclude Include="hns\sha3.h" />
+    <ClInclude Include="hns\utils.h" />
     <ClInclude Include="neoscrypt\neoscrypt.h" />
     <ClCompile Include="neoscrypt\neoscrypt.cpp" />
     <ClCompile Include="neoscrypt\neoscrypt-cpu.c" />
@@ -300,6 +312,7 @@
       <MaxRegCount>0</MaxRegCount>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_61,sm_61;compute_52,sm_52;compute_50,sm_50;compute_30,sm_30</CodeGeneration>
     </CudaCompile>
+    <CudaCompile Include="hns\hnscuda.cu" />
     <CudaCompile Include="neoscrypt\cuda_neoscrypt.cu">
       <MaxRegCount>160</MaxRegCount>
     </CudaCompile>

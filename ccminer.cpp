@@ -263,6 +263,7 @@ Options:\n\
 "			heavy       Heavycoin\n"
 #endif
 "			hmq1725     Doubloons / Espers\n\
+            hns         Handshake \n\
 			jackpot     JHA v8\n\
 			keccak      Deprecated Keccak-256\n\
 			keccakc     Keccak-256 (CreativeCoin)\n\
@@ -684,6 +685,7 @@ static void calc_network_diff(struct work *work)
 		net_diff = equi_network_diff(work);
 		return;
 	}
+	if (opt_algo == ALGO_HNS) nbits = swab32(work->data[63]);
 
 	uint32_t bits = (nbits & 0xffffff);
 	int16_t shift = (swab32(nbits) & 0xff); // 0x1c = 28
@@ -1587,6 +1589,8 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		case ALGO_SIA:
 			// getwork over stratum, no merkle to generate
 			break;
+		case ALGO_HNS:
+			break;
 #ifdef WITH_HEAVY_ALGO
 		case ALGO_HEAVY:
 		case ALGO_MJOLLNIR:
@@ -1680,7 +1684,53 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		memcpy(&work->data[12], sctx->job.coinbase, 32); // merkle_root
 		work->data[20] = 0x80000000;
 		if (opt_debug) applog_hex(work->data, 80);
-	} else {
+	} else if (opt_algo == ALGO_HNS) {
+
+
+		/*
+		HNS 的头部信息 只有nonce、mask_hash、extra_nonce 未知
+		*/
+	//	work->data[0] = nonce;
+		work->data[1] = le32dec(sctx->job.ntime);  //work->data[2] 应该也是 ntime
+	/*
+		unsigned char ntimetest[4];
+		le32enc(ntimetest, work->data[1]);
+		char *temp = bin2hex(ntimetest, 4);
+		applog(LOG_DEBUG, "DEBUG:  time------------>%s", temp);
+		
+		for (i = 0; i < 8; i++)
+			work->data[8 + i] = le32dec((uint32_t *)sctx->job.prevhash + i);
+
+		for (i = 0; i < 8; i++)
+			work->data[16 + i] = le32dec((uint32_t *)sctx->job.treeRoot + i);
+
+	//	for (i = 0; i < 8; i++)
+	//		work->data[24 + i] = mask_hash[32]
+
+	//	for (i = 0; i < 6; i++)
+	//		work->data[32 + i] = uint8_t extra_nonce[24];    data[32 - 37]    uint8_t * 24 共 24 字节， 24 / 4 = 6 个 uint32_t
+
+		for (i = 0; i < 8; i++)
+			work->data[38 + i] = le32dec((uint32_t *)sctx->job.reservedRoot + i);
+
+		for (i = 0; i < 8; i++)
+			work->data[46 + i] = le32dec((uint32_t *)sctx->job.witnessRoot + i);
+
+		for (i = 0; i < 8; i++)
+			work->data[54 + i] = le32dec((uint32_t *)sctx->job.merkleRoot + i);
+		*/
+
+
+		work->prevhash = sctx->job.prevhash;
+		work->merkleRoot = sctx->job.merkleRoot;
+		work->witnessRoot = sctx->job.witnessRoot;
+		work->treeRoot = sctx->job.treeRoot;
+		work->reservedRoot = sctx->job.reservedRoot;
+
+		work->data[62] = le32dec(sctx->job.version);
+		work->data[63] = le32dec(sctx->job.nbits);
+	}
+	else {
 		for (i = 0; i < 8; i++)
 			work->data[9 + i] = be32dec((uint32_t *)merkle_root + i);
 		work->data[17] = le32dec(sctx->job.ntime);
@@ -2112,6 +2162,8 @@ static void *miner_thread(void *userdata)
 		// prevent gpu scans before a job is received
 		if (opt_algo == ALGO_SIA) nodata_check_oft = 7; // no stratum version
 		else if (opt_algo == ALGO_DECRED) nodata_check_oft = 4; // testnet ver is 0
+		else if (opt_algo == ALGO_HNS) nodata_check_oft = 63; // hns data[62] is version is always  0
+
 		else nodata_check_oft = 0;
 		if (have_stratum && work.data[nodata_check_oft] == 0 && !opt_benchmark) {
 			sleep(1);
@@ -2432,7 +2484,9 @@ static void *miner_thread(void *userdata)
 		case ALGO_MYR_GR:
 			rc = scanhash_myriad(thr_id, &work, max_nonce, &hashes_done);
 			break;
-
+		case ALGO_HNS:
+			rc = scanhash_hns(thr_id, &work, max_nonce, &hashes_done);
+			break;
 		case ALGO_HMQ1725:
 			rc = scanhash_hmq17(thr_id, &work, max_nonce, &hashes_done);
 			break;
@@ -4288,7 +4342,7 @@ int main(int argc, char *argv[])
 		}
 	}
 #endif
-
+	
 	if (opt_api_port) {
 		/* api thread */
 		api_thr_id = opt_n_threads + 3;
@@ -4304,7 +4358,7 @@ int main(int argc, char *argv[])
 			return EXIT_CODE_SW_INIT_ERROR;
 		}
 	}
-
+	
 #ifdef USE_WRAPNVML
 	// to monitor gpu activitity during work, a thread is required
 	if (1) {
@@ -4322,6 +4376,7 @@ int main(int argc, char *argv[])
 #endif
 
 	/* start mining threads */
+	
 	for (i = 0; i < opt_n_threads; i++) {
 		thr = &thr_info[i];
 
@@ -4341,7 +4396,7 @@ int main(int argc, char *argv[])
 			return EXIT_CODE_SW_INIT_ERROR;
 		}
 	}
-
+    
 	applog(LOG_INFO, "%d miner thread%s started, "
 		"using '%s' algorithm.",
 		opt_n_threads, opt_n_threads > 1 ? "s":"",

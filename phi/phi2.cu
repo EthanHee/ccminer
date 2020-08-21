@@ -171,14 +171,14 @@ extern "C" int scanhash_phi2(int thr_id, struct work* work, uint32_t max_nonce, 
 		else
 			cubehash512_cuda_hash_80(thr_id, throughput, pdata[19], d_hash_512[thr_id]);
 		order++;
-		TRACE("cube   ");
+	//	TRACE("cube   ");
 
 		lyra2_cuda_hash_64(thr_id, throughput, d_hash_256[thr_id], d_hash_512[thr_id], gtx750ti);
 		order++;
-		TRACE("lyra   ");
+	//	TRACE("lyra   ");
 
 		quark_jh512_cpu_hash_64(thr_id, throughput, pdata[19], NULL, d_hash_512[thr_id], order++);
-		TRACE("jh     ");
+	//	TRACE("jh     ");
 
 		order++;
 		if (!use_compat_kernels[thr_id]) {
@@ -194,13 +194,13 @@ extern "C" int scanhash_phi2(int thr_id, struct work* work, uint32_t max_nonce, 
 			x11_echo512_cpu_hash_64(thr_id, throughput, pdata[19], NULL, d_hash_br2[thr_id], order);
 			phi_merge_cuda(thr_id, throughput, d_hash_512[thr_id], d_hash_br2[thr_id], d_nonce_br[thr_id]);
 		}
-		TRACE("mix    ");
+//		TRACE("mix    ");
 
 		quark_skein512_cpu_hash_64(thr_id, throughput, pdata[19], NULL, d_hash_512[thr_id], order++);
-		TRACE("skein  ");
+//		TRACE("skein  ");
 
 		phi_final_compress_cuda(thr_id, throughput, d_hash_512[thr_id]);
-		TRACE("xor  ");
+//		TRACE("xor  ");
 
 		work->nonces[0] = cuda_check_hash(thr_id, throughput, pdata[19], d_hash_512[thr_id]);
 		if (work->nonces[0] != UINT32_MAX)

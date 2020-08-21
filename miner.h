@@ -292,6 +292,7 @@ extern int scanhash_groestlcoin(int thr_id, struct work* work, uint32_t max_nonc
 extern int scanhash_hmq17(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_heavy(int thr_id,struct work *work, uint32_t max_nonce, unsigned long *hashes_done, uint32_t maxvote, int blocklen);
 extern int scanhash_hsr(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
+extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_jha(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done);
 extern int scanhash_jackpot(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done); // quark method
 extern int scanhash_lbry(int thr_id, struct work *work, uint32_t max_nonce, unsigned long *hashes_done);
@@ -673,6 +674,11 @@ void bench_display_results();
 struct stratum_job {
 	char *job_id;
 	unsigned char prevhash[32];
+	unsigned char merkleRoot[32];
+	unsigned char witnessRoot[32];
+	unsigned char treeRoot[32];
+	unsigned char reservedRoot[32];
+
 	size_t coinbase_size;
 	unsigned char *coinbase;
 	unsigned char *xnonce2;
@@ -727,7 +733,7 @@ struct tx {
 
 #define MAX_NONCES 2
 struct work {
-	uint32_t data[48];
+	uint32_t data[64];
 	uint32_t target[8];
 	uint32_t maxvote;
 
@@ -760,6 +766,12 @@ struct work {
 	struct tx txs[POK_MAX_TXS];
 	// zec solution
 	uint8_t extra[1388];
+
+	unsigned char *prevhash;
+	unsigned char *merkleRoot;
+	unsigned char *witnessRoot;
+	unsigned char *treeRoot;
+	unsigned char *reservedRoot;
 };
 
 #define POK_BOOL_MASK 0x00008000
@@ -842,6 +854,7 @@ void stratum_free_job(struct stratum_ctx *sctx);
 
 bool rpc2_stratum_authorize(struct stratum_ctx *sctx, const char *user, const char *pass);
 
+bool hns_stratum_notify(struct stratum_ctx *sctx, json_t *params);
 bool equi_stratum_notify(struct stratum_ctx *sctx, json_t *params);
 bool equi_stratum_set_target(struct stratum_ctx *sctx, json_t *params);
 bool equi_stratum_submit(struct pool_infos *pool, struct work *work);

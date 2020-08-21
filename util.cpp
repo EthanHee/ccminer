@@ -1119,6 +1119,7 @@ void stratum_free_job(struct stratum_ctx *sctx)
 	free(sctx->job.coinbase);
 	// note: xnonce2 is not allocated
 	memset(&(sctx->job.job_id), 0, sizeof(struct stratum_job));
+
 	pthread_mutex_unlock(&stratum_work_lock);
 }
 
@@ -1192,8 +1193,16 @@ static bool stratum_parse_extranonce(struct stratum_ctx *sctx, json_t *params, i
 		}
 	}
 	if (xn2_size < 2 || xn2_size > 16) {
-		applog(LOG_ERR, "Failed to get valid n2size in parse_extranonce (%d)", xn2_size);
-		goto out;
+		char algo[64] = { 0 };
+		get_currentalgo(algo, sizeof(algo));
+		if (strcmp(algo, "hns") == 0 && xn2_size <= 24)
+		{
+			applog(LOG_INFO, "Success to get valid n2size in parse_extranonce (%d)", xn2_size);
+		}
+		else{
+			applog(LOG_ERR, "Failed to get valid n2size in parse_extranonce (%d)", xn2_size);
+			goto out;
+		}
 	}
 skip_n2:
 	pthread_mutex_lock(&stratum_work_lock);
@@ -1454,9 +1463,14 @@ static bool stratum_notify(struct stratum_ctx *sctx, json_t *params)
 	get_currentalgo(algo, sizeof(algo));
 	bool has_claim = !strcmp(algo, "lbry");
 	bool has_roots = !strcmp(algo, "phi2") && json_array_size(params) == 10;
+	bool is_hns = !strcmp(algo, "hns");
 
 	if (sctx->is_equihash) {
 		return equi_stratum_notify(sctx, params);
+	}
+	if (is_hns)
+	{
+		return hns_stratum_notify(sctx, params);
 	}
 
 	job_id = json_string_value(json_array_get(params, p++));

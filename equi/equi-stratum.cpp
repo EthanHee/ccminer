@@ -236,7 +236,7 @@ bool hns_stratum_notify(struct stratum_ctx *sctx, json_t *params)
 	hex2bin(sctx->job.nbits, nbits, 4);
 	hex2bin(sctx->job.ntime, stime, 4);
 
-	
+	/*
 	applog(LOG_DEBUG, "*****************hns_stratum_notify*************************");
 
 	applog(LOG_DEBUG, "DEBUG:  nonce-------------------->NULL");
@@ -254,7 +254,7 @@ bool hns_stratum_notify(struct stratum_ctx *sctx, json_t *params)
 
 	applog(LOG_DEBUG, "*****************hns_stratum_notify*************************");
 
-	
+	*/
 
 
 	sctx->job.clean = clean;

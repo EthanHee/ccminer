@@ -1686,40 +1686,8 @@ static bool stratum_gen_work(struct stratum_ctx *sctx, struct work *work)
 		if (opt_debug) applog_hex(work->data, 80);
 	} else if (opt_algo == ALGO_HNS) {
 
-
-		/*
-		HNS 的头部信息 只有nonce、mask_hash、extra_nonce 未知
-		*/
-	//	work->data[0] = nonce;
+		//	work->data[0] = nonce;
 		work->data[1] = le32dec(sctx->job.ntime);  //work->data[2] 应该也是 ntime
-	/*
-		unsigned char ntimetest[4];
-		le32enc(ntimetest, work->data[1]);
-		char *temp = bin2hex(ntimetest, 4);
-		applog(LOG_DEBUG, "DEBUG:  time------------>%s", temp);
-		
-		for (i = 0; i < 8; i++)
-			work->data[8 + i] = le32dec((uint32_t *)sctx->job.prevhash + i);
-
-		for (i = 0; i < 8; i++)
-			work->data[16 + i] = le32dec((uint32_t *)sctx->job.treeRoot + i);
-
-	//	for (i = 0; i < 8; i++)
-	//		work->data[24 + i] = mask_hash[32]
-
-	//	for (i = 0; i < 6; i++)
-	//		work->data[32 + i] = uint8_t extra_nonce[24];    data[32 - 37]    uint8_t * 24 共 24 字节， 24 / 4 = 6 个 uint32_t
-
-		for (i = 0; i < 8; i++)
-			work->data[38 + i] = le32dec((uint32_t *)sctx->job.reservedRoot + i);
-
-		for (i = 0; i < 8; i++)
-			work->data[46 + i] = le32dec((uint32_t *)sctx->job.witnessRoot + i);
-
-		for (i = 0; i < 8; i++)
-			work->data[54 + i] = le32dec((uint32_t *)sctx->job.merkleRoot + i);
-		*/
-
 
 		work->prevhash = sctx->job.prevhash;
 		work->merkleRoot = sctx->job.merkleRoot;
@@ -2486,6 +2454,7 @@ static void *miner_thread(void *userdata)
 			break;
 		case ALGO_HNS:
 			rc = scanhash_hns(thr_id, &work, max_nonce, &hashes_done);
+			printf("scanhash_hns-------------------------> %d \n", rc);
 			break;
 		case ALGO_HMQ1725:
 			rc = scanhash_hmq17(thr_id, &work, max_nonce, &hashes_done);

@@ -960,6 +960,13 @@ void hns_hash_256(int thr_id, uint32_t threads, uint32_t startNonce, uint32_t *r
 	}
 }
 
+
+__host__
+void hns_setBlock_256(uint32_t *pdata, uint32_t *ptarget)
+{
+	
+}
+
 // hs_miner_func for the cuda backend
 //extern  int scanhash_hns(/*hs_options_t *options*/struct work* work, uint32_t *result, uint8_t *extra_nonce, bool *match)
 extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsigned long *hashes_done)
@@ -1006,60 +1013,8 @@ extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsig
 	cudaMalloc(&d_hash, sizeof(uint8_t) * 32);
 	cudaMemset(d_hash, 0, sizeof(uint8_t) * 32);
 
-	/********************data test********************/
-	/*auto header = hs_header_alloc();
-
-    char *version, *prevhash, *merkleRoot, *witnessRoot, *treeRoot, *reservedRoot, *nbits, *stime,*nonce2;
-
-
-	unsigned char ntimetest[4];
-	le32enc(ntimetest, work->data[1]);
-	stime = bin2hex(ntimetest, 4);
-	uint64_t nTime = 0;
-	sscanf(stime, "%x", &nTime);
-
-
-	unsigned char nbitdtest[4];
-	le32enc(nbitdtest, work->data[63]);
-	nbits = bin2hex(nbitdtest, 4);
-	uint32_t nBits = 0;
-	sscanf(nbits, "%x", &nBits);
-
-
-
-	unsigned char nversiontest[4];
-	le32enc(nversiontest, work->data[62]);
-	version = bin2hex(nversiontest, 4);
-	uint32_t nVersion = 0;
-	sscanf(version, "%x", &nVersion);
-
-
-
-	prevhash = bin2hex(work->prevhash, 32);
-	treeRoot = bin2hex(work->treeRoot, 32);
-
-	reservedRoot= bin2hex(work->reservedRoot, 32);
-	witnessRoot = bin2hex(work->witnessRoot, 32);
-	merkleRoot  = bin2hex(work->merkleRoot, 32);
-	nonce2 = bin2hex(work->xnonce2, 24);
-
-	generateBlockHeader(prevhash, treeRoot, reservedRoot, witnessRoot, merkleRoot, nonce2, header, nTime, nVersion, nBits);
-	
-	free(version);
-	free(prevhash);
-	free(merkleRoot);
-	free(witnessRoot);
-	free(treeRoot);
-	free(reservedRoot);
-	free(nbits);
-	free(stime);
-
-	uint8_t header_bin[256];
-	hs_header_encode(header, &header_bin[0]);
-	*/
 	uint8_t header_bin[256];
     generateBlockHeader_bin(header_bin,work);
-	/********************data test********************/
 
 
 
@@ -1080,8 +1035,6 @@ extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsig
     // version     - 4 bytes
     // bits        - 4 bytes
     // total       - 128 bytes
-
-
 
 	cudaMemcpyToSymbol(_pre_header, header_bin, 96);
 
@@ -1125,7 +1078,7 @@ extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsig
 	    CUDA_SAFE_CALL(cudaMemcpy(&match, out_match, sizeof(bool), cudaMemcpyDeviceToHost));
 		first_nonce += throughput;
 
-	} while (!match);
+	} while (!/*work_restart[thr_id].restart*/match);
 
 //	applog(LOG_INFO, "kernel_hs_hash()---------->: first_nonce->%llu   ", first_nonce);
 
@@ -1148,5 +1101,5 @@ extern int scanhash_hns(int thr_id, struct work* work, uint32_t max_nonce, unsig
     if (match)
       return HS_SUCCESS;
 
-	return -1;// HS_ENOSOLUTION;
+	return 0;// HS_ENOSOLUTION;
 }
